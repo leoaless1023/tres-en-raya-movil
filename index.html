@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+  <div class="board" id="board"></div>
+  <button id="reset">Reiniciar</button>
+</div>
+
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+
+const boardEl=document.getElementById('board');
+const statusEl=document.getElementById('status');
+const resetBtn=document.getElementById('reset');
+
+let cells=Array(9).fill(null);
+let turn='X';
+let q={X:[],O:[]};
+let over=false;
+
+const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function draw(){
+  boardEl.innerHTML='';
+  cells.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='cell'+(v?' '+v:'');
+    d.textContent=v||'';
+    d.onclick=()=>move(i);
+    boardEl.appendChild(d);
+  });
+}
+
+function win(p){return wins.some(([a,b,c])=>cells[a]===p&&cells[b]===p&&cells[c]===p);}
+
+function move(i){
+  if(over||cells[i])return;
+  cells[i]=turn;
+  q[turn].push(i);
+  if(q[turn].length>3){const old=q[turn].shift();cells[old]=null;}
+  if(win(turn)){statusEl.textContent='Ganador: '+turn;over=true;draw();return;}
+  turn=turn==='X'?'O':'X';
+  statusEl.textContent='Turno: '+turn;
+  draw();
+}
+
+resetBtn.onclick=()=>{cells=Array(9).fill(null);q={X:[],O:[]};turn='X';over=false;statusEl.textContent='Turno: X';draw();};
+
+draw();
+</script>
+</body>
+</html>
